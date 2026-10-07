@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "title": "New POst",
+    "body": "Checking on the status of this",
+    "createdUtc": "2026-09-30T23:39:20.1846711Z"
+  },
+  {
+    "id": 2,
+    "title": "Starting to get this",
+    "body": "yay!",
+    "createdUtc": "2026-09-30T23:39:33.1135392Z"
+  },
+  {
+    "id": 3,
+    "title": "Blog in Json",
+    "body": "New post for assignment",
+    "createdUtc": "2026-09-30T23:41:57.7119496Z"
+  },
+  {
+    "id": 4,
+    "title": "New POst",
+    "body": "Correcting issues",
+    "createdUtc": "2026-10-01T00:01:58.9691829Z"
+  },
+  {
+    "id": 5,
+    "title": "Final Test",
+    "body": "Final Test prior to submission",
+    "createdUtc": "2026-10-05T00:47:53.4288556Z"
+  },
+  {
+    "id": 6,
+    "title": "In Memory Blog",
+    "body": "Testing",
+    "createdUtc": "2026-10-05T00:51:53.7300269Z"
+  }
+]
