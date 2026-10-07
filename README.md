@@ -1,48 +1,79 @@
-MicroBlog - Repository Pattern & Dependency Injection
-This is my MicroBlog app from Week 4, updated to use the repository pattern with dependency injection (DI). The pages no longer depend on one specific storage class. Instead, they ask for an `IBlogRepository`, and `Program.cs` decides which version they get. That makes it easy to swap between saving posts to a JSON file and keeping them in memory.
-What changed from Week 4
-Added an `IBlogRepository` interface with `GetAll()`, `GetById()`, `Add()`, and `Save()`
-Added two classes that implement the interface:
-`InMemoryBlogRepository` stores posts in a `List<Post>`. Posts are lost when the app stops.
-`JsonBlogRepository` reads and writes posts to `data/posts.json`. Posts are kept after the app restarts.
-Registered the repository in the DI container in `Program.cs`
-The Index, Create, and Details pages receive `IBlogRepository` through constructor injection instead of using a static list or a specific class
-How to switch repositories
-Open `Program.cs` and find the repository registration:
+# MicroBlogConfig
+
+This project builds on last week's MicroBlog app and adds the Options pattern to read site settings from configuration. The site name and the comment form are both controlled by `appsettings` files, and the Development environment overrides Production.
+
+## How It Works
+
+I added a `SiteOptions` class with two settings:
+
 ```csharp
-builder.Services.AddSingleton<IBlogRepository, JsonBlogRepository>();
-// builder.Services.AddSingleton<IBlogRepository, InMemoryBlogRepository>();
+public class SiteOptions
+{
+    public string SiteName { get; set; }
+    public bool EnableComments { get; set; }
+}
 ```
-To use the JSON file (default): leave it as shown above.
-To use in-memory storage: comment out the JSON line and uncomment the in-memory line:
+
+In `Program.cs`, the class is bound to the `SiteOptions` section of the config:
+
 ```csharp
-// builder.Services.AddSingleton<IBlogRepository, JsonBlogRepository>();
-builder.Services.AddSingleton<IBlogRepository, InMemoryBlogRepository>();
+builder.Services.Configure<SiteOptions>(
+    builder.Configuration.GetSection("SiteOptions"));
 ```
-Only one line should be active at a time. No page code needs to change, because every page depends on the interface, not the class.
-How to tell which one is running
-JSON: posts saved in `data/posts.json` show on the home page, and new posts are still there after a restart.
-In-memory: the home page starts empty, new posts don't get written to `posts.json`, and they disappear when the app restarts.
-How to run it
-Open `MicroBlog.sln` in Visual Studio 2022 and press F5, or from a terminal in the project folder:
+
+Pages read the values by injecting `IOptions<SiteOptions>`.
+
+## Config Settings
+
+| Setting | Purpose | appsettings.json | appsettings.Development.json |
+|---|---|---|---|
+| `SiteName` | Name shown in the navbar and page title in `_Layout.cshtml` | My Micro Blog | (inherited) |
+| `EnableComments` | Shows or hides the "Leave a comment" form on the post Details page | false | true |
+
+**appsettings.json** (base / Production)
+
+```json
+"SiteOptions": {
+  "SiteName": "My Micro Blog",
+  "EnableComments": false
+}
 ```
-dotnet restore
-dotnet run
+
+**appsettings.Development.json** (overrides the base file in Development)
+
+```json
+"SiteOptions": {
+  "EnableComments": true
+}
 ```
-Then open the URL that shows up (something like `https://localhost:7009`).
-Screenshot
-![MicroBlog running](Screenshots/running.png)
-Where things live
-`Models/Post.cs` - the Post model
-`Services/IBlogRepository.cs` - the repository interface
-`Services/InMemoryBlogRepository.cs` - in-memory version (List)
-`Services/JsonBlogRepository.cs` - JSON file version (`data/posts.json`)
-`Program.cs` - DI registration (where you switch repositories)
-`Pages/Index.cshtml` - lists all posts
-`Pages/Create.cshtml` - form for adding a post
-`Pages/Details.cshtml` - single post view
-`Pages/Shared/_Layout.cshtml` - shared layout and navbar
-`Pages/Shared/_PostCard.cshtml` - reusable post preview
-Built with
-ASP.NET Core Razor Pages (.NET 9)
-System.Text.Json for reading/writing the posts file
+
+ASP.NET Core loads `appsettings.json` first, then the environment file on top of it. Only the values in the environment file change. Everything else comes from the base file.
+
+## Running Each Environment
+
+- **Development:** Run from Visual Studio (F5). The launch profile sets `ASPNETCORE_ENVIRONMENT=Development`, so the comment form shows.
+- **Production:** Run `dotnet run --environment Production` from the project folder, or change `ASPNETCORE_ENVIRONMENT` to `Production` in `Properties/launchSettings.json`. The comment form is hidden and the page says comments are disabled.
+
+## Screenshots
+
+### Development (EnableComments = true)
+
+The "Leave a comment" form shows on the post Details page.
+
+![Development environment with comments](Screenshots/development.png)
+
+### Production (EnableComments = false)
+
+The comment form is hidden and the page says comments are disabled.
+
+![Production environment without comments](Screenshots/production.png)
+
+### Development Config File
+
+`appsettings.Development.json` sets `EnableComments` to true, which overrides the base file.
+
+![appsettings.Development.json](Screenshots/devconfig.png)
+
+## Repository
+
+https://github.com/alminett1/MicroBlogConfig

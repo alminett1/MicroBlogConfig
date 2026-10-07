@@ -1,4 +1,5 @@
 using MicroBlog.Services;
+using MicroBlog.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,8 +8,11 @@ builder.Services.AddRazorPages();
 
 
 //Chose which repo to use by swapping the type
-//builder.Services.AddSingleton<IBlogRepository, JsonBlogRepository>();
-builder.Services.AddSingleton<IBlogRepository, InMemoryBlogRepository>();
+builder.Services.AddSingleton<IBlogRepository, JsonBlogRepository>();
+//builder.Services.AddSingleton<IBlogRepository, InMemoryBlogRepository>();
+
+//Bind SiteOptions from configuration
+builder.Services.Configure<SiteOptions>(builder.Configuration.GetSection("SiteOptions"));
 
 var app = builder.Build();
 
